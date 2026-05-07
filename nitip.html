@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nitip Makan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #ff6b35;
+    --accent2: #ffb347;
+    --green: #4ade80;
+    --red: #f87171;
+    --text: #f0f0f0;
+    --muted: #6b6b6b;
+    --paid: #1a2e1a;
+    --paid-border: #2d5a2d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .session-badge {
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px;
+    color: var(--muted);
+  }
+
+  /* SUMMARY BAR */
+  .summary-bar {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    padding: 14px 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .summary-bar .stat { text-align: center; }
+  .summary-bar .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+  .summary-bar .stat-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.75);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+  .divider-v { width: 1px; height: 32px; background: rgba(255,255,255,0.3); }
+
+  /* ADD FORM */
+  .add-section {
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .add-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  input, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  input:focus, select:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--muted); }
+
+  .btn-add {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-add:active { transform: scale(0.97); opacity: 0.9; }
+
+  .form-row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+  }
+
+  /* FILTER TABS */
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 12px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    flex-shrink: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ORDER LIST */
+  .orders-container {
+    padding: 0 20px;
+  }
+
+  .person-group {
+    margin-bottom: 20px;
+  }
+
+  .person-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .person-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .person-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .person-total {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent2);
+  }
+
+  .pay-all-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .pay-all-btn.paid-state {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  /* ORDER ITEM */
+  .order-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.25s;
+    animation: slideIn 0.25s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .order-item.paid-item {
+    background: var(--paid);
+    border-color: var(--paid-border);
+    opacity: 0.75;
+  }
+
+  .check-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 11px;
+  }
+  .check-btn.checked {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+
+  .order-info { flex: 1; min-width: 0; }
+  .order-menu {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .order-item.paid-item .order-menu { text-decoration: line-through; color: var(--muted); }
+
+  .order-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+    align-items: center;
+  }
+
+  .order-price {
+    font-size: 12px;
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  .order-note {
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .del-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    transition: color 0.2s;
+  }
+  .del-btn:hover { color: var(--red); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+  }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* RESET BTN */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-reset {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 10px;
+    padding: 12px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+  .btn-copy {
+    flex: 2;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-copy:active { transform: scale(0.98); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: var(--green);
+    color: #0f0f0f;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 18px;
+    border-radius: 20px;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* MODAL confirm reset */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 32px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(60px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .modal p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .modal-btns { display: flex; gap: 10px; }
+  .modal-btns button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+  }
+  .modal-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border) !important; }
+  .modal-confirm { background: var(--red); color: #fff; }
+
+  /* Color palette for avatars */
+  .c0 { background: #e85d04; }
+  .c1 { background: #3a86ff; }
+  .c2 { background: #8338ec; }
+  .c3 { background: #06d6a0; }
+  .c4 { background: #fb5607; }
+  .c5 { background: #ff006e; }
+  .c6 { background: #0077b6; }
+  .c7 { background: #7b2d8b; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Nitip<span>.</span>Makan</div>
+  <div class="session-badge" id="sessionDate"></div>
+</header>
+
+<div class="summary-bar">
+  <div class="stat">
+    <div class="stat-val" id="totalPeople">0</div>
+    <div class="stat-label">Orang</div>
+  </div>
+  <div class="divider-v"></div>
+  <div class="stat">
+    <div class="stat-val" id="totalItems">0</div>
+    <div class="stat-label">Item</div>
+  </div>
+  <div class="divider-v"></div>
+  <div class="stat">
+    <div class="stat-val" id="totalPaid">0</div>
+    <div class="stat-label">Sudah Bayar</div>
+  </div>
+  <div class="divider-v"></div>
+  <div class="stat">
+    <div class="stat-val" id="totalAmount">Rp0</div>
+    <div class="stat-label">Total</div>
+  </div>
+</div>
+
+<div class="add-section">
+  <h2>+ Tambah Pesanan</h2>
+  <div class="form-row">
+    <input type="text" id="inputName" placeholder="Nama (contoh: Dhafir)" />
+    <input type="text" id="inputMenu" placeholder="Menu (contoh: Geprek paha atas)" />
+  </div>
+  <div class="form-row2">
+    <input type="number" id="inputPrice" placeholder="Harga (opsional)" min="0" />
+    <input type="text" id="inputNote" placeholder="Catatan (TF/Cash/dll)" />
+    <button class="btn-add" onclick="addOrder()">＋ Add</button>
+  </div>
+</div>
+
+<div class="filter-tabs" id="filterTabs">
+  <div class="tab active" onclick="setFilter('all', this)">Semua</div>
+  <div class="tab" onclick="setFilter('unpaid', this)">Belum Bayar</div>
+  <div class="tab" onclick="setFilter('paid', this)">Sudah Bayar</div>
+</div>
+
+<div class="orders-container" id="ordersList"></div>
+
+<div class="toast" id="toast"></div>
+
+<div class="overlay" id="overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Reset semua?</h3>
+    <p>Semua pesanan akan dihapus dan tidak bisa dikembalikan.</p>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Batal</button>
+      <button class="modal-confirm" onclick="confirmReset()">Reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <button class="btn-reset" onclick="openModal()">🗑 Reset</button>
+  <button class="btn-copy" onclick="copyToClipboard()">📋 Copy ke WA</button>
+</div>
+
+<script>
+  const COLORS = ['c0','c1','c2','c3','c4','c5','c6','c7'];
+  let orders = JSON.parse(localStorage.getItem('nitipMakan') || '[]');
+  let filter = 'all';
+  let colorMap = {};
+  let colorIdx = 0;
+
+  function getColor(name) {
+    if (!colorMap[name.toLowerCase()]) {
+      colorMap[name.toLowerCase()] = COLORS[colorIdx % COLORS.length];
+      colorIdx++;
+    }
+    return colorMap[name.toLowerCase()];
+  }
+
+  function getInitial(name) {
+    return name.trim().charAt(0).toUpperCase();
+  }
+
+  function save() {
+    localStorage.setItem('nitipMakan', JSON.stringify(orders));
+  }
+
+  function formatRupiah(n) {
+    if (!n || n === 0) return '';
+    if (n >= 1000) return 'Rp' + (n/1000).toFixed(0) + 'k';
+    return 'Rp' + n;
+  }
+
+  function formatRupiahFull(n) {
+    return 'Rp' + n.toLocaleString('id-ID');
+  }
+
+  function addOrder() {
+    const name = document.getElementById('inputName').value.trim();
+    const menu = document.getElementById('inputMenu').value.trim();
+    const price = parseInt(document.getElementById('inputPrice').value) || 0;
+    const note = document.getElementById('inputNote').value.trim();
+
+    if (!name || !menu) {
+      showToast('⚠️ Nama & menu wajib diisi!');
+      return;
+    }
+
+    orders.push({ id: Date.now(), name, menu, price, note, paid: false });
+    save();
+    render();
+    document.getElementById('inputMenu').value = '';
+    document.getElementById('inputPrice').value = '';
+    document.getElementById('inputNote').value = '';
+    document.getElementById('inputMenu').focus();
+    showToast('✓ Pesanan ditambahkan');
+  }
+
+  function togglePaid(id) {
+    const o = orders.find(x => x.id === id);
+    if (o) { o.paid = !o.paid; save(); render(); }
+  }
+
+  function deleteOrder(id) {
+    orders = orders.filter(x => x.id !== id);
+    save();
+    render();
+  }
+
+  function togglePayAll(person) {
+    const personOrders = orders.filter(x => x.name.toLowerCase() === person.toLowerCase());
+    const allPaid = personOrders.every(x => x.paid);
+    personOrders.forEach(x => x.paid = !allPaid);
+    save();
+    render();
+  }
+
+  function setFilter(f, el) {
+    filter = f;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    render();
+  }
+
+  function render() {
+    // Summary
+    const people = [...new Set(orders.map(x => x.name.toLowerCase()))];
+    const paidItems = orders.filter(x => x.paid);
+    const totalAmt = orders.reduce((s, x) => s + (x.price || 0), 0);
+    document.getElementById('totalPeople').textContent = people.length;
+    document.getElementById('totalItems').textContent = orders.length;
+    document.getElementById('totalPaid').textContent = paidItems.length;
+    document.getElementById('totalAmount').textContent = totalAmt ? formatRupiahFull(totalAmt) : 'Rp0';
+
+    // Group by person
+    const grouped = {};
+    orders.forEach(o => {
+      const key = o.name.toLowerCase();
+      if (!grouped[key]) grouped[key] = { name: o.name, items: [] };
+      grouped[key].items.push(o);
+    });
+
+    const container = document.getElementById('ordersList');
+
+    // Apply filter
+    const filteredGroups = Object.values(grouped).map(g => ({
+      ...g,
+      items: g.items.filter(o => {
+        if (filter === 'paid') return o.paid;
+        if (filter === 'unpaid') return !o.paid;
+        return true;
+      })
+    })).filter(g => g.items.length > 0);
+
+    if (filteredGroups.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="emoji">🍽️</div><p>Belum ada pesanan${filter !== 'all' ? ' di kategori ini' : ''}.<br>Yuk tambahin!</p></div>`;
+      return;
+    }
+
+    container.innerHTML = filteredGroups.map(g => {
+      const allPaid = g.items.every(x => x.paid);
+      const subtotal = g.items.reduce((s, x) => s + (x.price || 0), 0);
+      const color = getColor(g.name);
+      return `
+        <div class="person-group">
+          <div class="person-header">
+            <div class="person-name-row">
+              <div class="avatar ${color}">${getInitial(g.name)}</div>
+              <div class="person-name">${g.name}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              ${subtotal ? `<span class="person-total">${formatRupiahFull(subtotal)}</span>` : ''}
+              <button class="pay-all-btn ${allPaid ? 'paid-state' : ''}" onclick="togglePayAll('${g.name}')">
+                ${allPaid ? '✓ Lunas' : 'Tandai Lunas'}
+              </button>
+            </div>
+          </div>
+          ${g.items.map(o => `
+            <div class="order-item ${o.paid ? 'paid-item' : ''}">
+              <button class="check-btn ${o.paid ? 'checked' : ''}" onclick="togglePaid(${o.id})">
+                ${o.paid ? '✓' : ''}
+              </button>
+              <div class="order-info">
+                <div class="order-menu">${o.menu}</div>
+                <div class="order-meta">
+                  ${o.price ? `<span class="order-price">${formatRupiahFull(o.price)}</span>` : ''}
+                  ${o.note ? `<span class="order-note">${o.note}</span>` : ''}
+                </div>
+              </div>
+              <button class="del-btn" onclick="deleteOrder(${o.id})">✕</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function copyToClipboard() {
+    if (orders.length === 0) { showToast('⚠️ Belum ada pesanan'); return; }
+    const grouped = {};
+    orders.forEach(o => {
+      const key = o.name.toLowerCase();
+      if (!grouped[key]) grouped[key] = { name: o.name, items: [] };
+      grouped[key].items.push(o);
+    });
+
+    let text = `🍽️ *Rekap Nitip Makan*\n`;
+    const now = new Date();
+    text += `📅 ${now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}\n\n`;
+
+    let i = 1;
+    Object.values(grouped).forEach(g => {
+      g.items.forEach(o => {
+        text += `${i}. *${g.name}* — ${o.menu}`;
+        if (o.price) text += ` (${formatRupiahFull(o.price)})`;
+        if (o.note) text += ` [${o.note}]`;
+        if (o.paid) text += ` ✅`;
+        text += `\n`;
+        i++;
+      });
+    });
+
+    const total = orders.reduce((s,x) => s+(x.price||0), 0);
+    if (total > 0) text += `\n💰 *Total: ${formatRupiahFull(total)}*`;
+
+    navigator.clipboard.writeText(text).then(() => showToast('✓ Disalin ke clipboard!'));
+  }
+
+  function openModal() { document.getElementById('overlay').classList.add('show'); }
+  function closeModal() { document.getElementById('overlay').classList.remove('show'); }
+  function confirmReset() {
+    orders = [];
+    colorMap = {};
+    colorIdx = 0;
+    save();
+    render();
+    closeModal();
+    showToast('🗑 Semua pesanan dihapus');
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (document.activeElement.id === 'inputName' ||
+      document.activeElement.id === 'inputMenu' ||
+      document.activeElement.id === 'inputPrice' ||
+      document.activeElement.id === 'inputNote')) {
+      addOrder();
+    }
+  });
+
+  // Session date
+  const d = new Date();
+  document.getElementById('sessionDate').textContent =
+    d.toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+
+  // Rebuild color map from existing data
+  orders.forEach(o => getColor(o.name));
+
+  render();
+</script>
+</body>
+</html>
