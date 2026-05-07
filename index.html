@@ -5,48 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nitip Makan</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // =============================================
+  // 🔧 GANTI DENGAN CONFIG FIREBASE KAMU DI SINI
+  // =============================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyD2zHoOX5pfJyLp9SLedEtMYPiMN_J7Alw",
+    authDomain: "personal-e2689.firebaseapp.com",
+    databaseURL: "https://GANTI_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "personal-e2689",
+    storageBucket: "personal-e2689.appspot.com",
+    messagingSenderId: "530244993729",
+    appId: "1:530244993729:web:df2992668ae2132b090a40"
+  };
+  // =============================================
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const dbRef = ref(db, 'nitip');
+
+  // Expose ke window agar bisa diakses dari script biasa
+  window._fb = { db, ref, onValue, set, get, dbRef };
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
 <style>
   :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --surface2: #242424;
-    --border: #2e2e2e;
-    --accent: #ff6b35;
-    --accent2: #ffb347;
-    --green: #4ade80;
-    --red: #f87171;
-    --text: #f0f0f0;
-    --muted: #6b6b6b;
-    --paid: #1a2e1a;
-    --paid-border: #2d5a2d;
+    --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424; --border: #2e2e2e;
+    --accent: #ff6b35; --accent2: #ffb347; --green: #4ade80; --red: #f87171;
+    --text: #f0f0f0; --muted: #6b6b6b; --paid: #1a2e1a; --paid-border: #2d5a2d;
     --font: Tahoma, Geneva, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; padding-bottom: 80px; }
 
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 20px;
-    position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .logo { font-family: var(--font); font-size: 20px; font-weight: 800; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-size: 20px; font-weight: 800; }
   .logo span { color: var(--accent); }
   .header-right { display: flex; align-items: center; gap: 8px; }
   .session-badge { font-size: 11px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; color: var(--muted); }
-  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: background 0.3s; flex-shrink: 0; }
   .sync-dot.syncing { background: var(--accent2); animation: pulse 1s infinite; }
   .sync-dot.synced { background: var(--green); }
+  .sync-dot.error { background: var(--red); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-  .summary-bar {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
-    padding: 14px 20px;
-    display: flex; gap: 20px; align-items: center; justify-content: space-between;
-  }
+  .summary-bar { background: linear-gradient(135deg, var(--accent), var(--accent2)); padding: 14px 20px; display: flex; gap: 20px; align-items: center; justify-content: space-between; }
   .stat { text-align: center; }
-  .stat-val { font-family: var(--font); font-size: clamp(14px,2vw,20px); font-weight: 800; color: #fff; line-height: 1; word-break: break-all; }
+  .stat-val { font-size: clamp(14px,2vw,20px); font-weight: 800; color: #fff; line-height: 1; word-break: break-all; }
   .stat-label { font-size: 10px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
   .divider-v { width: 1px; height: 32px; background: rgba(255,255,255,0.3); }
 
@@ -57,8 +68,8 @@
   input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--font); font-size: 14px; border-radius: 10px; padding: 10px 12px; outline: none; transition: border-color 0.2s; width: 100%; }
   input:focus { border-color: var(--accent); }
   input::placeholder { color: var(--muted); }
-  .btn-add { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-family: var(--font); font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: opacity 0.2s, transform 0.1s; }
-  .btn-add:active { transform: scale(0.97); opacity: 0.9; }
+  .btn-add { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-family: var(--font); font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; transition: opacity 0.2s, transform 0.1s; }
+  .btn-add:active { transform: scale(0.97); }
   .btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .filter-tabs { display: flex; gap: 8px; padding: 12px 20px; overflow-x: auto; scrollbar-width: none; }
@@ -76,7 +87,7 @@
   .pay-all-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; font-family: var(--font); transition: all 0.2s; }
   .pay-all-btn.paid-state { border-color: var(--green); color: var(--green); }
 
-  .order-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; transition: all 0.25s; animation: slideIn 0.25s ease; }
+  .order-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.25s ease; }
   @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
   .order-item.paid-item { background: var(--paid); border-color: var(--paid-border); opacity: 0.75; }
   .check-btn { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); background: transparent; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 11px; }
@@ -87,33 +98,31 @@
   .order-meta { display: flex; gap: 8px; margin-top: 2px; align-items: center; flex-wrap: wrap; }
   .order-price { font-size: 12px; color: var(--accent2); font-weight: 500; }
   .order-note { font-size: 11px; color: var(--muted); background: var(--surface2); padding: 2px 6px; border-radius: 4px; }
-  .order-by { font-size: 10px; color: var(--muted); font-style: italic; }
   .del-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 4px; border-radius: 6px; flex-shrink: 0; transition: color 0.2s; }
   .del-btn:hover { color: var(--red); }
 
   .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
   .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
-  .empty-state p { font-size: 14px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; }
 
   .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 20px; display: flex; gap: 8px; }
   .btn-reset { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); border-radius: 10px; padding: 12px; font-family: var(--font); font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; }
   .btn-reset:hover { border-color: var(--red); color: var(--red); }
-  .btn-copy { flex: 2; background: var(--accent); border: none; color: #fff; border-radius: 10px; padding: 12px; font-family: var(--font); font-weight: 700; font-size: 13px; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
-  .btn-copy:active { transform: scale(0.98); }
+  .btn-copy { flex: 2; background: var(--accent); border: none; color: #fff; border-radius: 10px; padding: 12px; font-family: var(--font); font-weight: 700; font-size: 13px; cursor: pointer; }
 
   .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-10px); background: var(--green); color: #0f0f0f; font-family: var(--font); font-weight: 700; font-size: 13px; padding: 8px 18px; border-radius: 20px; opacity: 0; transition: all 0.3s; z-index: 999; pointer-events: none; white-space: nowrap; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* NAME MODAL */
+  /* Name modal */
   .name-overlay { display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
   .name-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 360px; text-align: center; }
   .name-modal .icon { font-size: 40px; margin-bottom: 12px; }
   .name-modal h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
-  .name-modal p { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .name-modal p { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
   .name-modal input { margin-bottom: 12px; text-align: center; font-size: 16px; }
   .btn-enter { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 12px; font-family: var(--font); font-weight: 700; font-size: 15px; cursor: pointer; }
 
-  /* CONFIRM MODAL */
+  /* Confirm modal */
   .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: flex-end; justify-content: center; }
   .overlay.show { display: flex; }
   .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px 20px 0 0; padding: 24px 20px 32px; width: 100%; max-width: 480px; animation: slideUp 0.25s ease; }
@@ -125,8 +134,10 @@
   .modal-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border) !important; }
   .modal-confirm { background: var(--red); color: #fff; }
 
-  /* Loading */
-  .loading-bar { height: 2px; background: var(--accent); width: 0%; transition: width 0.3s; position: fixed; top: 0; left: 0; z-index: 999; }
+  /* Setup guide */
+  .setup-banner { background: #1a1a00; border: 1px solid #554400; border-radius: 10px; padding: 14px 16px; margin: 16px 20px; font-size: 13px; line-height: 1.7; color: #ffcc44; }
+  .setup-banner strong { display: block; margin-bottom: 4px; font-size: 14px; }
+  .setup-banner code { background: #2a2a00; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
 
   .c0{background:#e85d04} .c1{background:#3a86ff} .c2{background:#8338ec}
   .c3{background:#06d6a0} .c4{background:#fb5607} .c5{background:#ff006e}
@@ -135,14 +146,12 @@
 </head>
 <body>
 
-<div class="loading-bar" id="loadingBar"></div>
-
-<!-- Name Entry Modal -->
+<!-- Name Modal -->
 <div class="name-overlay" id="nameOverlay">
   <div class="name-modal">
     <div class="icon">🍽️</div>
     <h3>Siapa kamu?</h3>
-    <p>Masukkan namamu biar pesananmu tercatat dengan benar</p>
+    <p>Masukkan namamu biar pesananmu tercatat dan tersinkron ke semua orang</p>
     <input type="text" id="myNameInput" placeholder="Nama kamu..." maxlength="30" />
     <button class="btn-enter" onclick="setMyName()">Masuk →</button>
   </div>
@@ -151,10 +160,12 @@
 <header>
   <div class="logo">Nitip<span>.</span>Makan</div>
   <div class="header-right">
-    <div class="sync-dot" id="syncDot" title="Status sync"></div>
+    <div class="sync-dot" id="syncDot"></div>
     <div class="session-badge" id="sessionDate"></div>
   </div>
 </header>
+
+<div id="setupBanner"></div>
 
 <div class="summary-bar">
   <div class="stat"><div class="stat-val" id="totalPeople">0</div><div class="stat-label">Orang</div></div>
@@ -180,9 +191,9 @@
 </div>
 
 <div class="filter-tabs">
-  <div class="tab active" onclick="setFilter('all', this)">Semua</div>
-  <div class="tab" onclick="setFilter('unpaid', this)">Belum Bayar</div>
-  <div class="tab" onclick="setFilter('paid', this)">Sudah Bayar</div>
+  <div class="tab active" onclick="setFilter('all',this)">Semua</div>
+  <div class="tab" onclick="setFilter('unpaid',this)">Belum Bayar</div>
+  <div class="tab" onclick="setFilter('paid',this)">Sudah Bayar</div>
 </div>
 
 <div class="orders-container" id="ordersList"></div>
@@ -206,26 +217,72 @@
 
 <script>
   const COLORS = ['c0','c1','c2','c3','c4','c5','c6','c7'];
-  const STORAGE_KEY = 'nitipMakan-shared-v1';
-  const POLL_INTERVAL = 4000; // poll every 4 seconds
-
   let orders = [];
   let filter = 'all';
   let colorMap = {};
   let colorIdx = 0;
   let myName = localStorage.getItem('nitipMyName') || '';
-  let pollTimer = null;
-  let lastHash = '';
+  let fbReady = false;
+
+  // ── Deteksi apakah Firebase sudah dikonfigurasi ──
+  function isConfigured() {
+    return !document.querySelector('script[type="module"]').textContent.includes('GANTI_API_KEY');
+  }
+
+  function showSetupBanner() {
+    document.getElementById('setupBanner').innerHTML = `
+      <div class="setup-banner">
+        <strong>⚙️ Setup Firebase diperlukan!</strong>
+        Ikuti langkah di bawah lalu paste config ke dalam file HTML ini:<br>
+        1. Buka <strong>console.firebase.google.com</strong> → buat project baru<br>
+        2. Klik ⚙️ → <strong>Project Settings</strong> → <strong>Add App</strong> → pilih Web (&lt;/&gt;)<br>
+        3. Copy <code>firebaseConfig</code> → paste ke bagian atas file HTML (ada komentar 🔧)<br>
+        4. Di Firebase Console → <strong>Build → Realtime Database</strong> → Create database → pilih region <strong>asia-southeast1</strong><br>
+        5. Di tab <strong>Rules</strong>, ubah ke: <code>{ "rules": { ".read": true, ".write": true } }</code> → Publish<br>
+        6. Commit ke GitHub → Vercel auto-deploy ✅
+      </div>`;
+  }
+
+  // ── Firebase listener (realtime) ──
+  function startFirebase() {
+    const { onValue, dbRef, set } = window._fb;
+    setSyncDot('syncing');
+
+    // Listen realtime — update otomatis kalau ada perubahan dari device lain
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val() || { orders: [], colorMap: {}, colorIdx: 0 };
+      orders = data.orders || [];
+      colorMap = data.colorMap || {};
+      colorIdx = data.colorIdx || 0;
+      render();
+      setSyncDot('synced');
+    }, (err) => {
+      console.error(err);
+      setSyncDot('error');
+      showToast('⚠️ Gagal konek ke database');
+    });
+  }
+
+  async function saveToFirebase() {
+    const { set, dbRef } = window._fb;
+    setSyncDot('syncing');
+    try {
+      await set(dbRef, { orders, colorMap, colorIdx, updatedAt: Date.now() });
+      setSyncDot('synced');
+    } catch(e) {
+      setSyncDot('error');
+      showToast('⚠️ Gagal menyimpan');
+    }
+  }
 
   // ── Name modal ──
   function initNameModal() {
     if (myName) {
       document.getElementById('nameOverlay').style.display = 'none';
       document.getElementById('inputName').value = myName;
-      startPolling();
     } else {
       document.getElementById('nameOverlay').style.display = 'flex';
-      document.getElementById('myNameInput').focus();
+      setTimeout(() => document.getElementById('myNameInput').focus(), 100);
     }
   }
 
@@ -236,63 +293,7 @@
     localStorage.setItem('nitipMyName', myName);
     document.getElementById('nameOverlay').style.display = 'none';
     document.getElementById('inputName').value = myName;
-    startPolling();
   }
-
-  // ── Shared storage ──
-  async function loadFromStorage() {
-    try {
-      setSyncDot('syncing');
-      const res = await window.storage.get(STORAGE_KEY, true); // shared=true
-      const data = res ? JSON.parse(res.value) : { orders: [], colorMap: {}, colorIdx: 0 };
-      const newHash = JSON.stringify(data.orders);
-      if (newHash !== lastHash) {
-        lastHash = newHash;
-        orders = data.orders || [];
-        colorMap = data.colorMap || {};
-        colorIdx = data.colorIdx || 0;
-        render();
-      }
-      setSyncDot('synced');
-    } catch(e) {
-      // Key not found = first time
-      orders = [];
-      setSyncDot('synced');
-      render();
-    }
-  }
-
-  async function saveToStorage() {
-    try {
-      setSyncDot('syncing');
-      const data = { orders, colorMap, colorIdx, updatedAt: Date.now() };
-      await window.storage.set(STORAGE_KEY, JSON.stringify(data), true); // shared=true
-      lastHash = JSON.stringify(orders);
-      setSyncDot('synced');
-    } catch(e) {
-      setSyncDot('synced');
-      showToast('⚠️ Gagal menyimpan, coba lagi');
-    }
-  }
-
-  function startPolling() {
-    loadFromStorage();
-    pollTimer = setInterval(loadFromStorage, POLL_INTERVAL);
-  }
-
-  function setSyncDot(state) {
-    const dot = document.getElementById('syncDot');
-    dot.className = 'sync-dot ' + state;
-  }
-
-  // ── Helpers ──
-  function getColor(name) {
-    const k = name.toLowerCase();
-    if (!colorMap[k]) { colorMap[k] = COLORS[colorIdx % COLORS.length]; colorIdx++; }
-    return colorMap[k];
-  }
-  function getInitial(name) { return name.trim().charAt(0).toUpperCase(); }
-  function formatRupiahFull(n) { return 'Rp' + n.toLocaleString('id-ID'); }
 
   // ── Actions ──
   async function addOrder() {
@@ -304,14 +305,9 @@
 
     const btn = document.getElementById('btnAdd');
     btn.disabled = true;
-
-    // Reload first to avoid overwrite conflict
-    await loadFromStorage();
-    getColor(name); // ensure color assigned
+    getColor(name);
     orders.push({ id: Date.now(), name, menu, price, note, paid: false, addedBy: myName });
-    await saveToStorage();
-    render();
-
+    await saveToFirebase();
     document.getElementById('inputMenu').value = '';
     document.getElementById('inputPrice').value = '';
     document.getElementById('inputNote').value = '';
@@ -321,25 +317,20 @@
   }
 
   async function togglePaid(id) {
-    await loadFromStorage();
     const o = orders.find(x => x.id === id);
-    if (o) { o.paid = !o.paid; await saveToStorage(); render(); }
+    if (o) { o.paid = !o.paid; await saveToFirebase(); }
   }
 
   async function deleteOrder(id) {
-    await loadFromStorage();
     orders = orders.filter(x => x.id !== id);
-    await saveToStorage();
-    render();
+    await saveToFirebase();
   }
 
   async function togglePayAll(person) {
-    await loadFromStorage();
     const po = orders.filter(x => x.name.toLowerCase() === person.toLowerCase());
     const allPaid = po.every(x => x.paid);
     po.forEach(x => x.paid = !allPaid);
-    await saveToStorage();
-    render();
+    await saveToFirebase();
   }
 
   function setFilter(f, el) {
@@ -350,13 +341,22 @@
   }
 
   // ── Render ──
+  function getColor(name) {
+    const k = name.toLowerCase();
+    if (!colorMap[k]) { colorMap[k] = COLORS[colorIdx % COLORS.length]; colorIdx++; }
+    return colorMap[k];
+  }
+  function getInitial(n) { return n.trim().charAt(0).toUpperCase(); }
+  function formatRp(n) { return 'Rp' + n.toLocaleString('id-ID'); }
+  function setSyncDot(state) { document.getElementById('syncDot').className = 'sync-dot ' + state; }
+
   function render() {
     const people = [...new Set(orders.map(x => x.name.toLowerCase()))];
     const totalAmt = orders.reduce((s,x) => s+(x.price||0), 0);
     document.getElementById('totalPeople').textContent = people.length;
     document.getElementById('totalItems').textContent = orders.length;
     document.getElementById('totalPaid').textContent = orders.filter(x=>x.paid).length;
-    document.getElementById('totalAmount').textContent = totalAmt ? formatRupiahFull(totalAmt) : 'Rp0';
+    document.getElementById('totalAmount').textContent = totalAmt ? formatRp(totalAmt) : 'Rp0';
 
     const grouped = {};
     orders.forEach(o => {
@@ -371,7 +371,7 @@
     })).filter(g => g.items.length > 0);
 
     const container = document.getElementById('ordersList');
-    if (filtered.length === 0) {
+    if (!filtered.length) {
       container.innerHTML = `<div class="empty-state"><div class="emoji">🍽️</div><p>Belum ada pesanan${filter!=='all'?' di kategori ini':''}.<br>Yuk tambahin!</p></div>`;
       return;
     }
@@ -386,12 +386,10 @@
           <div class="person-header">
             <div class="person-name-row">
               <div class="avatar ${color}">${getInitial(g.name)}</div>
-              <div>
-                <div class="person-name">${g.name}${isMe?' <span style="font-size:10px;color:var(--accent);font-weight:400">(kamu)</span>':''}</div>
-              </div>
+              <div class="person-name">${g.name}${isMe?' <span style="font-size:10px;color:var(--accent);font-weight:400">(kamu)</span>':''}</div>
             </div>
             <div style="display:flex;align-items:center;gap:8px">
-              ${subtotal?`<span class="person-total">${formatRupiahFull(subtotal)}</span>`:''}
+              ${subtotal?`<span class="person-total">${formatRp(subtotal)}</span>`:''}
               <button class="pay-all-btn ${allPaid?'paid-state':''}" onclick="togglePayAll('${g.name}')">
                 ${allPaid?'✓ Lunas':'Tandai Lunas'}
               </button>
@@ -403,9 +401,8 @@
               <div class="order-info">
                 <div class="order-menu">${o.menu}</div>
                 <div class="order-meta">
-                  ${o.price?`<span class="order-price">${formatRupiahFull(o.price)}</span>`:''}
+                  ${o.price?`<span class="order-price">${formatRp(o.price)}</span>`:''}
                   ${o.note?`<span class="order-note">${o.note}</span>`:''}
-                  ${o.addedBy && o.addedBy.toLowerCase()!==o.name.toLowerCase()?`<span class="order-by">nitip ke ${o.addedBy}</span>`:''}
                 </div>
               </div>
               <button class="del-btn" onclick="deleteOrder(${o.id})">✕</button>
@@ -419,7 +416,7 @@
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
+    setTimeout(()=>t.classList.remove('show'), 2400);
   }
 
   function copyToClipboard() {
@@ -430,22 +427,19 @@
       if (!grouped[k]) grouped[k] = { name: o.name, items: [] };
       grouped[k].items.push(o);
     });
-    let text = `🍽️ *Rekap Nitip Makan*\n`;
-    const now = new Date();
-    text += `📅 ${now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}\n\n`;
+    let text = `🍽️ *Rekap Nitip Makan*\n📅 ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}\n\n`;
     let i = 1;
     Object.values(grouped).forEach(g => {
       g.items.forEach(o => {
-        text += `${i}. *${g.name}* — ${o.menu}`;
-        if (o.price) text += ` (${formatRupiahFull(o.price)})`;
+        text += `${i++}. *${g.name}* — ${o.menu}`;
+        if (o.price) text += ` (${formatRp(o.price)})`;
         if (o.note) text += ` [${o.note}]`;
         if (o.paid) text += ` ✅`;
-        text += `\n`;
-        i++;
+        text += '\n';
       });
     });
     const total = orders.reduce((s,x)=>s+(x.price||0),0);
-    if (total>0) text += `\n💰 *Total: ${formatRupiahFull(total)}*`;
+    if (total) text += `\n💰 *Total: ${formatRp(total)}*`;
     navigator.clipboard.writeText(text).then(()=>showToast('✓ Disalin ke clipboard!'));
   }
 
@@ -453,8 +447,8 @@
   function closeModal() { document.getElementById('overlay').classList.remove('show'); }
   async function confirmReset() {
     orders = []; colorMap = {}; colorIdx = 0;
-    await saveToStorage();
-    render(); closeModal();
+    await saveToFirebase();
+    closeModal();
     showToast('🗑 Semua pesanan dihapus');
   }
 
@@ -463,10 +457,15 @@
   });
   document.getElementById('myNameInput').addEventListener('keydown', e => { if(e.key==='Enter') setMyName(); });
 
-  const d = new Date();
-  document.getElementById('sessionDate').textContent = d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+  document.getElementById('sessionDate').textContent = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'});
 
+  // ── Init ──
+  if (!isConfigured()) {
+    showSetupBanner();
+    render();
+  }
   initNameModal();
+  window.addEventListener('firebase-ready', () => { fbReady = true; startFirebase(); });
 </script>
 </body>
 </html>
