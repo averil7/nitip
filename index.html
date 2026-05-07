@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nitip Makan</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap');
+</style>
 <style>
   :root {
     --bg: #0f0f0f;
@@ -28,7 +28,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'DM Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     padding-bottom: 80px;
   }
@@ -47,7 +47,7 @@
   }
 
   .logo {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Syne', ui-sans-serif, system-ui, -apple-system, sans-serif;
     font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.5px;
@@ -77,11 +77,12 @@
 
   .summary-bar .stat { text-align: center; }
   .summary-bar .stat-val {
-    font-family: 'Syne', sans-serif;
-    font-size: 20px;
+    font-family: 'Syne', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: clamp(14px, 2vw, 20px);
     font-weight: 800;
     color: #fff;
     line-height: 1;
+    word-break: break-all;
   }
   .summary-bar .stat-label {
     font-size: 10px;
